@@ -1,0 +1,32 @@
+{
+  "name": "tarot-card-game",
+  "version": "1.0.0",
+  "description": "基于Three.js的3D塔罗抽卡游戏，支持手势识别",
+  "scripts": {
+    "dev": "npx serve -p 8080",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "dependencies": {
+    "three": "^0.160.0"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "verbose": true
+  },
+  "keywords": [
+    "tarot",
+    "three.js",
+    "mediapipe",
+    "gesture-recognition",
+    "webgl"
+  ],
+  "license": "MIT"
+}

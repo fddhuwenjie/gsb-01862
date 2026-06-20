@@ -1,0 +1,7 @@
+services:
+  frontend-user:
+    build: ./frontend-user
+    container_name: tarot-game
+    ports:
+      - "8082:80"
+    restart: unless-stopped

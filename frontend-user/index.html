@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>塔罗抽卡游戏</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- 3D画布容器 -->
+        <div id="canvas-container"></div>
+        
+        <!-- 顶部控制栏 -->
+        <div id="top-bar">
+            <h1>🔮 塔罗抽卡</h1>
+            <div id="mode-switch">
+                <button id="btn-mouse" class="mode-btn active">🖱️ 鼠标模式</button>
+                <button id="btn-gesture" class="mode-btn">✋ 手势模式</button>
+            </div>
+        </div>
+        
+        <!-- 手势状态显示 -->
+        <div id="gesture-status" class="hidden">
+            <div id="gesture-current">
+                <span id="gesture-icon">✋</span>
+                <span id="gesture-name">无手势</span>
+            </div>
+            <div id="gesture-next">
+                <span id="gesture-next-text">下一步：张开手掌开始</span>
+            </div>
+        </div>
+        
+        <!-- 摄像头预览 -->
+        <div id="camera-preview" class="hidden">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="hand-canvas"></canvas>
+        </div>
+        
+        <!-- 卡牌信息面板 -->
+        <div id="card-info" class="hidden">
+            <div id="card-info-content">
+                <h2 id="card-name"></h2>
+                <div id="card-orientation"></div>
+                <p id="card-meaning"></p>
+                <button id="btn-next">抽下一张</button>
+            </div>
+        </div>
+        
+        <!-- 历史记录面板 -->
+        <div id="history-panel" class="hidden">
+            <div id="history-toggle">📜 历史记录</div>
+            <div id="history-content">
+                <div id="history-list"></div>
+            </div>
+        </div>
+        
+        <!-- 提示信息 -->
+        <div id="hint">
+            <span id="hint-text">点击卡牌开始抽卡</span>
+        </div>
+        
+        <!-- 剩余卡牌数 -->
+        <div id="deck-count">
+            剩余: <span id="remaining-count">78</span> 张
+        </div>
+        
+        <!-- 加载提示 -->
+        <div id="loading">
+            <div class="spinner"></div>
+            <p>加载中...</p>
+        </div>
+    </div>
+
+    <!-- Three.js -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    
+    <!-- 应用脚本 -->
+    <script src="js/tarotData.js"></script>
+    <script src="js/ParticleSystem.js"></script>
+    <script src="js/HandTracker.js"></script>
+    <script src="js/CardManager.js"></script>
+    <script src="js/TarotGame.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

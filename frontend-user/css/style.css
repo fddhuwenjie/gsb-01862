@@ -1,0 +1,803 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+}
+
+#app {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* 顶部控制栏 */
+#top-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+    z-index: 100;
+}
+
+#top-bar h1 {
+    font-size: 24px;
+    font-weight: 600;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+#mode-switch {
+    display: flex;
+    gap: 8px;
+}
+
+.mode-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 24px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.mode-btn:hover {
+    background: rgba(255,255,255,0.2);
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+/* 手势状态 */
+#gesture-status {
+    position: absolute;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 28px;
+    background: rgba(0,0,0,0.8);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    z-index: 100;
+    min-width: 200px;
+}
+
+#gesture-current {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#gesture-icon {
+    font-size: 28px;
+}
+
+#gesture-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #4ade80;
+}
+
+#gesture-next {
+    padding-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+    width: 100%;
+    text-align: center;
+}
+
+#gesture-next-text {
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+}
+
+/* 摄像头预览 */
+#camera-preview {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 200px;
+    height: 150px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(255,255,255,0.3);
+    z-index: 100;
+}
+
+#camera-preview video,
+#camera-preview canvas {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#hand-canvas {
+    z-index: 1;
+}
+
+/* 卡牌信息面板 */
+#card-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 400px;
+    background: rgba(20, 20, 40, 0.95);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    z-index: 200;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+#card-name {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+#card-orientation {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+#card-orientation.upright {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+#card-orientation.reversed {
+    background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+}
+
+#card-meaning {
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.85);
+    margin-bottom: 24px;
+}
+
+#btn-next {
+    padding: 14px 36px;
+    border: none;
+    border-radius: 28px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#btn-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+}
+
+/* 历史记录面板 */
+#history-panel.hidden {
+    display: none;
+}
+
+#history-panel {
+    position: absolute;
+    top: 80px;
+    right: 0;
+    width: 300px;
+    max-height: calc(100vh - 100px);
+    z-index: 100;
+    transition: transform 0.3s ease;
+}
+
+#history-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
+    border-radius: 16px 0 0 16px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-right: none;
+    box-shadow: -4px 4px 20px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+
+#history-toggle:hover {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 1) 0%, rgba(118, 75, 162, 1) 100%);
+    padding-left: 24px;
+}
+
+#history-content {
+    background: linear-gradient(180deg, rgba(20, 20, 50, 0.95) 0%, rgba(10, 10, 30, 0.95) 100%);
+    border-radius: 0 0 0 16px;
+    max-height: 400px;
+    overflow-y: auto;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-right: none;
+    border-top: none;
+    box-shadow: -4px 4px 30px rgba(0,0,0,0.4);
+}
+
+#history-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+#history-content::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+}
+
+#history-content::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+#history-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+#history-list {
+    padding: 16px;
+}
+
+#history-list:empty::after {
+    content: '暂无抽卡记录';
+    display: block;
+    text-align: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 14px;
+    padding: 20px;
+}
+
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+    border-radius: 12px;
+    font-size: 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: all 0.2s ease;
+}
+
+.history-item:hover {
+    background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%);
+    transform: translateX(-4px);
+    border-color: rgba(255,255,255,0.15);
+}
+
+.history-item:last-child {
+    margin-bottom: 0;
+}
+
+.history-item .card-mini {
+    width: 44px;
+    height: 64px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #d4af37 0%, #f4d03f 15%, #d4af37 30%, #aa8c2c 50%, #d4af37 70%, #f4d03f 85%, #d4af37 100%);
+    padding: 3px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 12px rgba(212, 175, 55, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.history-item .card-mini-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 2px;
+}
+
+.history-item .card-mini-img.reversed {
+    transform: rotate(180deg);
+}
+
+.history-item .card-mini-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #4a3f6e 0%, #2d2456 30%, #1e1840 70%, #2d2456 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.history-item .card-mini-inner::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    right: 3px;
+    bottom: 3px;
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    border-radius: 1px;
+}
+
+.history-item .card-mini-id {
+    color: #f4d03f;
+    font-size: 11px;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+    z-index: 1;
+}
+
+.history-item .card-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    flex-shrink: 0;
+}
+
+.history-item .card-thumb {
+    width: 40px;
+    height: 60px;
+    border-radius: 6px;
+    object-fit: cover;
+    background: linear-gradient(135deg, #2a2a4a 0%, #1a1a3a 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.history-item .card-details {
+    flex: 1;
+}
+
+.history-item .card-title {
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #fff;
+    font-size: 15px;
+}
+
+.history-item .card-orient {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.history-item .card-orient.upright {
+    background: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+}
+
+.history-item .card-orient.reversed {
+    background: rgba(244, 92, 67, 0.2);
+    color: #f45c43;
+}
+
+/* 提示信息 */
+#hint {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 28px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 28px;
+    font-size: 15px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+}
+
+/* 剩余卡牌数 */
+#deck-count {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.6);
+    border-radius: 20px;
+    font-size: 14px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+#remaining-count {
+    font-weight: 700;
+    color: #f5af19;
+}
+
+/* 加载提示 */
+#loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #1a1a2e;
+    z-index: 1000;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: #667eea;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#loading p {
+    margin-top: 16px;
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+
+/* ==================== 移动端适配 ==================== */
+
+/* 平板竖屏 */
+@media screen and (max-width: 768px) {
+    #top-bar {
+        padding: 12px 16px;
+    }
+    
+    #top-bar h1 {
+        font-size: 18px;
+    }
+    
+    .mode-btn {
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+    
+    #gesture-status {
+        top: 70px;
+        padding: 12px 20px;
+        min-width: 180px;
+    }
+    
+    #gesture-icon {
+        font-size: 24px;
+    }
+    
+    #gesture-name {
+        font-size: 16px;
+    }
+    
+    #gesture-next-text {
+        font-size: 12px;
+    }
+    
+    #history-panel {
+        width: 260px;
+        top: 70px;
+    }
+    
+    #history-toggle {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+    
+    #history-content {
+        max-height: 300px;
+    }
+    
+    #history-list {
+        padding: 12px;
+    }
+    
+    .history-item {
+        padding: 10px;
+        gap: 10px;
+    }
+    
+    .history-item .card-mini {
+        width: 36px;
+        height: 52px;
+    }
+    
+    .history-item .card-title {
+        font-size: 13px;
+    }
+    
+    #camera-preview {
+        width: 150px;
+        height: 112px;
+        bottom: 15px;
+        left: 15px;
+    }
+    
+    #card-info {
+        padding: 24px;
+        width: 92%;
+    }
+    
+    #card-name {
+        font-size: 22px;
+    }
+    
+    #card-meaning {
+        font-size: 14px;
+    }
+    
+    #hint {
+        bottom: 80px;
+        padding: 10px 20px;
+        font-size: 13px;
+    }
+    
+    #deck-count {
+        bottom: 15px;
+        right: 15px;
+        padding: 8px 14px;
+        font-size: 12px;
+    }
+}
+
+/* 手机竖屏 */
+@media screen and (max-width: 480px) {
+    #top-bar {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    #top-bar h1 {
+        font-size: 16px;
+        width: 100%;
+        text-align: center;
+        order: -1;
+    }
+    
+    #mode-switch {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .mode-btn {
+        padding: 8px 16px;
+        font-size: 12px;
+        flex: 1;
+        max-width: 120px;
+        text-align: center;
+    }
+    
+    #gesture-status {
+        top: auto;
+        bottom: 160px;
+        padding: 10px 16px;
+        min-width: 160px;
+    }
+    
+    #gesture-icon {
+        font-size: 20px;
+    }
+    
+    #gesture-name {
+        font-size: 14px;
+    }
+    
+    #gesture-next-text {
+        font-size: 11px;
+    }
+    
+    #history-panel {
+        width: 100%;
+        top: auto;
+        bottom: 0;
+        max-height: 50vh;
+    }
+    
+    #history-toggle {
+        border-radius: 16px 16px 0 0;
+        justify-content: center;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-bottom: none;
+    }
+    
+    #history-content {
+        border-radius: 0;
+        max-height: 40vh;
+        border: none;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    #camera-preview {
+        width: 120px;
+        height: 90px;
+        bottom: auto;
+        top: 100px;
+        left: 10px;
+    }
+    
+    #card-info {
+        padding: 20px;
+        width: 95%;
+        max-width: none;
+    }
+    
+    #card-name {
+        font-size: 20px;
+    }
+    
+    #card-orientation {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+    
+    #card-meaning {
+        font-size: 13px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+    
+    #btn-next {
+        padding: 12px 28px;
+        font-size: 14px;
+    }
+    
+    #hint {
+        bottom: 60px;
+        padding: 8px 16px;
+        font-size: 12px;
+        max-width: 90%;
+        text-align: center;
+    }
+    
+    #deck-count {
+        bottom: auto;
+        top: 100px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+}
+
+/* 横屏模式优化 */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+    #top-bar {
+        padding: 8px 16px;
+    }
+    
+    #top-bar h1 {
+        font-size: 16px;
+    }
+    
+    #gesture-status {
+        top: 60px;
+        padding: 8px 14px;
+    }
+    
+    #camera-preview {
+        width: 120px;
+        height: 90px;
+        bottom: 10px;
+        left: 10px;
+    }
+    
+    #card-info {
+        padding: 16px;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+    
+    #card-name {
+        font-size: 18px;
+        margin-bottom: 8px;
+    }
+    
+    #card-meaning {
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+    
+    #history-panel {
+        top: 60px;
+        width: 240px;
+    }
+    
+    #history-content {
+        max-height: calc(100vh - 120px);
+    }
+    
+    #hint {
+        bottom: 10px;
+    }
+    
+    #deck-count {
+        bottom: 10px;
+    }
+}
